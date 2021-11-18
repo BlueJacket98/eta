@@ -1,4 +1,4 @@
-package com.capstone.eta.util;
+package com.capstone.eta.util.weight;
 import java.util.*;
 
 public class GenerateWeightUtil {
@@ -7,6 +7,6 @@ public class GenerateWeightUtil {
     }
 
     public Integer getWeight(String queryEdgeName, String graphName, Date date) {
-        
+        return 1;
     }
 }

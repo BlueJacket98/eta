@@ -5,11 +5,12 @@
  * @author Zhizhong Wu
  */
 
-package com.capstone.eta.util;
+package com.capstone.eta.util.graph;
 import java.util.*;
+import com.capstone.eta.util.weight.GenerateWeightUtil;
 import org.javatuples.Pair;
 
-public class GenerateEGNetworkGraphUtil {
+public class EGNetworkGraphGenerator extends GraphGenerator {
     enum GraphName {
         EGNetwork,
         MoR,
@@ -25,14 +26,10 @@ public class GenerateEGNetworkGraphUtil {
         UpstreamDeviceConfig,
     }
 
-    static Map<Pair<Integer, Integer>, Integer> graph = new HashMap<>();
-    static Map<String, List<Pair<Integer, Integer>>> edgeNameToPairs = new HashMap<>();
-    static Map<Pair<Integer, Integer>, String> pairToEdgeName = new HashMap<>();
-
     /**
      * Constructor, initialize the graph structure with weight set to 0
      */
-    GenerateEGNetworkGraphUtil() {
+    public EGNetworkGraphGenerator() {
         graph.put(Pair.with(0, 1), 0);
         graph.put(Pair.with(1, 2), 0);
         graph.put(Pair.with(2, 7), 0);
@@ -55,20 +52,6 @@ public class GenerateEGNetworkGraphUtil {
         pairToEdgeName.put(Pair.with(3, 4), EdgeName.ArtifactGeneration.toString());
         pairToEdgeName.put(Pair.with(4, 5), EdgeName.GenerateCableMaps.toString());
         pairToEdgeName.put(Pair.with(4, 6), EdgeName.UpstreamDeviceConfig.toString());
-    }
-
-    /**
-     * @param Date date, current date in a Date class
-     * @return Map<Pair<Integer, Integer>, Integer> graph, the graph with weight updated
-     */
-    public static Map<Pair<Integer, Integer>, Integer> generateGraph(Date date) {
-        for (Map.Entry<Pair<Integer, Integer>, Integer> entry : graph.entrySet()) {
-            Pair<Integer, Integer> pair = entry.getKey();
-            String queryEdgeName = pairToEdgeName.get(pair);
-            GenerateWeightUtil generator = new GenerateWeightUtil();
-            graph.put(pair, generator.getWeight(queryEdgeName, GraphName.EGNetwork.toString(), date));
-        }
-        return graph;
     }
 
     /**
