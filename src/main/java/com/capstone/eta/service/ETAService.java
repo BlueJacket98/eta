@@ -31,7 +31,7 @@ public class ETAService {
         preRackCriticalPathGenerator = new PreRackCriticalPathGenerator();
     }
 
-    public void elapse() {
+    public Integer elapse() {
         Pair<Pair<Integer, Integer>, Integer> egNetworkRes = egNetworkCriticalPathGenerator.compute(curDate);
         Pair<Pair<Integer, Integer>, Integer> moRRes = moRCriticalPathGenerator.compute(curDate);
         Pair<Pair<Integer, Integer>, Integer> preRackRes = preRackCriticalPathGenerator.compute(curDate);
@@ -39,6 +39,7 @@ public class ETAService {
         System.out.println(estimatedDuration);
 
         curDate = DateAddOne.dateAddOne(curDate);
+        return estimatedDuration;
     }
 
     public static void main(String[] args) {
