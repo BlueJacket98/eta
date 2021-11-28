@@ -46,6 +46,16 @@ public class CalendarService {
     }
 
     /**
+     * TODO
+     * @param startDate
+     * @param numOfDays
+     * @return
+     */
+    public Date addNetDaysToDate(Date startDate, Integer numOfDays) {
+        return new Date(0);
+    }
+
+    /**
      * Get all entries in lockdown_and_holidays table
      * Careful to use or not to use at all!
      * @return

@@ -42,7 +42,7 @@ abstract public class CriticalPathGenerator {
             graph.put(entry.getKey(), entry.getValue().getMilestoneWeight());
         }
 
-        // body of floyd-warshall algorithm
+        // main body of floyd-warshall algorithm
         Pair<Integer, Integer> criticalPath = Pair.with(0, 0);
         for (int k = 0; k < n; k++) {
             for (int x = 0; x < n; x++) {
