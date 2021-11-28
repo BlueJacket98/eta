@@ -2,7 +2,6 @@ package com.capstone.eta.util.graph;
 import java.util.*;
 
 import com.capstone.eta.util.data.Milestone;
-import com.capstone.eta.util.weight.WeightGenerator;
 
 import org.javatuples.Pair;
 

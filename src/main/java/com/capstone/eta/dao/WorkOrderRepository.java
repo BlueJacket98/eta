@@ -1,7 +1,6 @@
 package com.capstone.eta.dao;
 import java.util.*;
 
-import com.capstone.eta.entity.DeliveryInfo;
 import com.capstone.eta.entity.WorkOrder;
 
 import org.springframework.data.jpa.repository.JpaRepository;
