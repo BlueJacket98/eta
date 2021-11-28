@@ -1,0 +1,33 @@
+{
+    "graphName": "EGNetwork",
+    "milestones": {
+        "ProcureAndReceiveNetworkEquipment": {
+            "sla": 15,
+            "tasks": ["StartNetworkPurchaseOrder",
+                      "WaitforNWPurchaseOrder",
+                      "HardwareDockedNetworkEquipment",
+                      "ReceiveNetworkEquipment",
+                      "SatisfyReceivedEntity"],
+            "tasksSLA": {
+                "StartNetworkPurchaseOrder": 1,
+                "WaitforNWPurchaseOrder": 1,
+                "HardwareDockedNetworkEquipment": 3,
+                "ReceiveNetworkEquipment": 3,
+                "SatisfyReceivedEntity": 1
+            }
+        },
+        "HardwareInstallationAndValidation": {
+            "sla": 7,
+            "tasks": ["WaitForMORInstallation", 
+                      "InstallUpdateNetworkEquipment"],
+            "tasksSLA": {
+                "WaitForMORInstallation": 1,
+                "InstallUpdateNetworkEquipment": 3
+            }
+        },
+        "CableAndConfiguration": {},
+        "ArtifactGeneration": {},
+        "GenerateCableMaps": {},
+        "UpstreamDeviceConfig": {}      
+    }
+}

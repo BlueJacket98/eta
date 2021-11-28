@@ -1,6 +1,8 @@
 package com.capstone.eta.util.compute;
 import java.util.*;
 import org.javatuples.*;
+
+import com.capstone.eta.util.data.Milestone;
 import com.capstone.eta.util.graph.PreRackGraphGenerator;
 
 public class PreRackCriticalPathGenerator extends CriticalPathGenerator {
@@ -10,11 +12,15 @@ public class PreRackCriticalPathGenerator extends CriticalPathGenerator {
         PreRack,
     }
 
-    PreRackGraphGenerator preRackGraphGenerator = new PreRackGraphGenerator();
+    PreRackGraphGenerator preRackGraphGenerator;
+
+    public PreRackCriticalPathGenerator(String deliveryNumber) {
+        preRackGraphGenerator = new PreRackGraphGenerator(deliveryNumber);
+    }
 
     public Pair<Pair<Integer, Integer>, Integer> compute(Date date) {
-        preRackGraphGenerator.generateGraph(date, GraphName.MoR.toString());
-        Map<Pair<Integer, Integer>, Integer> graph = preRackGraphGenerator.getGraph();
+        preRackGraphGenerator.updateGraph(date);
+        Map<Pair<Integer, Integer>, Milestone> graph = preRackGraphGenerator.getGraph();
         int n = preRackGraphGenerator.getN();
         return floydWarshall(graph, n);
     }

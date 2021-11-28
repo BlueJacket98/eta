@@ -1,8 +1,11 @@
 package com.capstone.eta.util.compute;
 import java.util.*;
+
+import com.capstone.eta.util.data.Milestone;
+
 import org.javatuples.*;
 
-public class CriticalPathGenerator {
+abstract public class CriticalPathGenerator {
     // // MaxHeap, sort by the total weight
     // // Store all possible path from current milestone to end
     // PriorityQueue<Pair<List<Integer>, Integer>> heap = new PriorityQueue<>(
@@ -30,14 +33,22 @@ public class CriticalPathGenerator {
      * @param n
      * @return Pair<Pair<Start, End>, maxTotalWeight>
      */
-    public Pair<Pair<Integer, Integer>, Integer> floydWarshall(Map<Pair<Integer, Integer>, Integer> graph, int n) {
+    public Pair<Pair<Integer, Integer>, Integer> floydWarshall(Map<Pair<Integer, Integer>, Milestone> inputGraph, int n) {
         int maxTotalWeight = 0;
+        
+        // preprocessing of the graph, make value into integer -> weight
+        Map<Pair<Integer, Integer>, Integer> graph = new HashMap<>();
+        for (Map.Entry<Pair<Integer, Integer>, Milestone> entry : inputGraph.entrySet()) {
+            graph.put(entry.getKey(), entry.getValue().getMilestoneWeight());
+        }
+
+        // body of floyd-warshall algorithm
         Pair<Integer, Integer> criticalPath = Pair.with(0, 0);
-        for (int k = 1; k <= n; k++) {
-            for (int x = 1; x <= n; x++) {
-                for (int y = 1; y <= n; y++) {
+        for (int k = 0; k < n; k++) {
+            for (int x = 0; x < n; x++) {
+                for (int y = 0; y < n; y++) {
                     graph.put(Pair.with(x, y), 
-                            Math.max(graph.get(Pair.with(x, y)), graph.get(Pair.with(x, k)) + graph.get(Pair.with(k, y))));
+                              Math.max(graph.get(Pair.with(x, y)), graph.get(Pair.with(x, k)) + graph.get(Pair.with(k, y))));
                     if (graph.get(Pair.with(x, y)) > maxTotalWeight) {
                         maxTotalWeight = graph.get(Pair.with(x, y));
                         criticalPath = Pair.with(x, y);
@@ -47,6 +58,8 @@ public class CriticalPathGenerator {
         }
         return Pair.with(criticalPath, maxTotalWeight);
     }
+
+    abstract public Pair<Pair<Integer, Integer>, Integer> compute(Date date);
 
     public static void main(String[] args) {
         
