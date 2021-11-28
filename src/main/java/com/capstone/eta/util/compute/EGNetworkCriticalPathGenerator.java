@@ -18,7 +18,7 @@ public class EGNetworkCriticalPathGenerator extends CriticalPathGenerator {
         egNetworkGraphGenerator = new EGNetworkGraphGenerator(deliveryNumber);
     }
     
-
+    
     public Pair<Pair<Integer, Integer>, Integer> compute(Date date) {
         egNetworkGraphGenerator.updateGraph(date);
         Map<Pair<Integer, Integer>, Milestone> graph = egNetworkGraphGenerator.getGraph();
