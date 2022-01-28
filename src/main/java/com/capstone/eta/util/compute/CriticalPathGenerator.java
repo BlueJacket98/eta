@@ -6,24 +6,6 @@ import com.capstone.eta.util.data.Milestone;
 import org.javatuples.*;
 
 abstract public class CriticalPathGenerator {
-    // // MaxHeap, sort by the total weight
-    // // Store all possible path from current milestone to end
-    // PriorityQueue<Pair<List<Integer>, Integer>> heap = new PriorityQueue<>(
-    //     new Comparator<Pair<List<Integer>, Integer>>() {
-    //         @Override
-    //         public int compare(Pair<List<Integer>, Integer> path1, Pair<List<Integer>, Integer> path2) {
-    //             return path1.getValue1() > path2.getValue1() ? -1 : 1;
-    //         }
-    //     }
-    // );
-
-    // public Pair<List<Integer>, Integer> computeMilestones(List<String> curEdges, Map<Pair<Integer, Integer>, Integer> graph,
-    //                                                         Map<String, List<Pair<Integer, Integer>>> edgeNameToPairs, int n) {
-    //     for (String edge : curEdges) {
-    //         computeOneMilestone(edge, graph, edgeNameToPairs);
-    //     }
-    //     return heap.peek();
-    // }
     Map<Pair<Integer, Integer>, Integer> graph;
     int n;
 
@@ -48,7 +30,8 @@ abstract public class CriticalPathGenerator {
             for (int x = 0; x < n; x++) {
                 for (int y = 0; y < n; y++) {
                     graph.put(Pair.with(x, y), 
-                              Math.max(graph.get(Pair.with(x, y)), graph.get(Pair.with(x, k)) + graph.get(Pair.with(k, y))));
+                              Math.max(graph.getOrDefault(Pair.with(x, y), 0), 
+                                       graph.getOrDefault(Pair.with(x, k), 0) + graph.getOrDefault(Pair.with(k, y), 0)));
                     if (graph.get(Pair.with(x, y)) > maxTotalWeight) {
                         maxTotalWeight = graph.get(Pair.with(x, y));
                         criticalPath = Pair.with(x, y);

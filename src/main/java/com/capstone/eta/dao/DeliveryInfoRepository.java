@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 /**
  * master data
  */
-@Repository
+@Repository("deliveryInfoRepository")
 public interface DeliveryInfoRepository extends JpaRepository<DeliveryInfo, Integer> {
     List<DeliveryInfo> findByDeliveryNumber(String deliveryNumber);
     List<DeliveryInfo> findByDeliveryNumberAndFpStartDateLessThanEqual(String deliveryNumber, Date fpStartDate);

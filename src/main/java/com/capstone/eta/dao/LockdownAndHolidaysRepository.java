@@ -6,7 +6,7 @@ import java.util.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
+@Repository("lockdownAndHolidaysRepository")
 public interface LockdownAndHolidaysRepository extends JpaRepository<LockdownAndHolidays, Integer> {
     List<LockdownAndHolidays> findByType(String type);
     List<LockdownAndHolidays> findByStartDate(Date startDate);

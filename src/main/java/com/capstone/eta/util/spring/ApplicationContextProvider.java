@@ -6,17 +6,15 @@ import org.springframework.stereotype.Component;
 
 /**
  * 用来解决单例注入service为null，不用@Autowired，用ApplicationContext获取bean
- * @author zhaozhengge
- * @create 2021-04-30 16:00
  */
 @Component
-public class SpringUtil implements ApplicationContextAware {
+public class ApplicationContextProvider implements ApplicationContextAware {
 
     private static ApplicationContext applicationContext;
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        SpringUtil.applicationContext = applicationContext;
+        ApplicationContextProvider.applicationContext = applicationContext;
     }
 
     // 获取 ApplicationContext

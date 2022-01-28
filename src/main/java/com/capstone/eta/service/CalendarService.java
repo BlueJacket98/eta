@@ -8,7 +8,7 @@ import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("calendarService")
 // @RequestMapping(path="/calendar")
 public class CalendarService {
     @Autowired
@@ -51,7 +51,7 @@ public class CalendarService {
      * @param numOfDays
      * @return
      */
-    public Date addNetDaysToDate(Date startDate, Integer numOfDays) {
+    public Date addNetDaysToDate(String dcCode, Date startDate, Integer numOfDays) {
         return new Date(0);
     }
 

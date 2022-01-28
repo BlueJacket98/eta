@@ -2,13 +2,15 @@ package com.capstone.eta.util.data;
 
 import java.util.*;
 import org.javatuples.*;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import com.capstone.eta.dao.DeliveryInfoRepository;
 import com.capstone.eta.dao.WorkOrderRepository;
 import com.capstone.eta.entity.WorkOrder;
 import com.capstone.eta.service.CalendarService;
 import com.capstone.eta.util.date.DateUtil;
 import com.capstone.eta.util.json.JsonUtil;
+import com.capstone.eta.util.spring.ApplicationContextProvider;
 import com.capstone.eta.util.weight.WeightGenerator;
 
 import lombok.Data;
@@ -20,7 +22,7 @@ public class Milestone {
         MoR,
         PreRack,
     }
-
+    
     enum Status {
         NotStarted,
         InProgress,
@@ -37,9 +39,12 @@ public class Milestone {
     private String deliveryNumber;
     private List<Pair<Task, Date>> finishedTasks = new ArrayList<>();
     private Map<String, Integer> slaMap;
-    private static CalendarService calendarService;
-    private static WorkOrderRepository workOrderRepository;
-    private static DeliveryInfoRepository deliveryInfoRepository;
+
+    private CalendarService calendarService;
+
+    private WorkOrderRepository workOrderRepository;
+
+    private DeliveryInfoRepository deliveryInfoRepository;
     /**
      * Constructor
      * @param milestoneName
@@ -52,7 +57,10 @@ public class Milestone {
         this.milestoneName = milestoneName;
         this.graphName = graphName;
         this.startDate = startDate;     // Note startDate only meaningful when status != NotStarted
-        this.slaMap = JsonUtil.getTasksSLAMapFromGraphAndMilestoneName(graphName, milestoneName);
+        // this.slaMap = JsonUtil.getTasksSLAMapFromGraphAndMilestoneName(graphName, milestoneName);
+        this.calendarService = (CalendarService) ApplicationContextProvider.getBean("calendarService");
+        this.workOrderRepository = (WorkOrderRepository) ApplicationContextProvider.getBean("workOrderRepository");
+        this.deliveryInfoRepository = (DeliveryInfoRepository) ApplicationContextProvider.getBean("deliveryInfoRepository");
     }
 
     /**
@@ -76,7 +84,10 @@ public class Milestone {
             
             finishedTasks = allFinishedTasks;
             // if the last work order name contains " - Ended"
-            if (startedTasksEntities.get(startedTasksEntities.size() - 1).getWorkOrderName().contains(" - Ended")) {
+            if (startedTasksEntities.size() == 0) {
+                status = Status.NotStarted;
+            }
+            else if (startedTasksEntities.get(startedTasksEntities.size() - 1).getWorkOrderName().contains(" - Ended")) {
                 status = Status.Finished;
             } else {
                 status = Status.InProgress;
@@ -133,7 +144,8 @@ public class Milestone {
     private Integer getStandardTimeForFinishedTasks() {
         Integer totalSLA = (int)0;
         for (Pair<Task, Date> finishedTask : finishedTasks) {
-            totalSLA += slaMap.get(finishedTask.getValue0().getTaskName());
+            // totalSLA += slaMap.get(finishedTask.getValue0().getTaskName());
+            totalSLA += 1;
         }
         return totalSLA;
     }
