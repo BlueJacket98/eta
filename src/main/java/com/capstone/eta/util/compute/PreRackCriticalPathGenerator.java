@@ -7,8 +7,8 @@ import com.capstone.eta.util.graph.PreRackGraphGenerator;
 
 public class PreRackCriticalPathGenerator extends CriticalPathGenerator {
     enum GraphName {
-        EGNetwork,
-        MoR,
+        EngineeringGroupNetwork,
+        Mor,
         PreRack,
     }
 

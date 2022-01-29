@@ -52,7 +52,38 @@ public class CalendarService {
      * @return
      */
     public Date addNetDaysToDate(String dcCode, Date startDate, Integer numOfDays) {
-        return new Date(0);
+        List<LockdownAndHolidays> lockdownAndHolidaysInDC = 
+                lockdownAndHolidayRepository.findByDcCodeAndStartDateAfterOrderByStartDate(dcCode, new java.sql.Date(startDate.getTime()));
+        Date curDate = startDate;
+        int idx = 0;
+        System.out.println(dcCode);
+        System.out.println(startDate);
+        System.out.println(numOfDays);
+        // System.out.println("Lockdown and holiday: " + lockdownAndHolidaysInDC);
+        for (int i = 0; i < lockdownAndHolidaysInDC.size(); i++) {
+            System.out.println(lockdownAndHolidaysInDC.get(i).getStartDate());
+            System.out.println(lockdownAndHolidaysInDC.get(i).getEndDate());
+        }
+        while (numOfDays > 0) {
+            if (idx >= lockdownAndHolidaysInDC.size()) {
+                break;
+            }
+            if (curDate.compareTo(lockdownAndHolidaysInDC.get(idx).getStartDate()) > 0 
+                && curDate.compareTo(lockdownAndHolidaysInDC.get(idx).getEndDate()) < 0) {
+                curDate = lockdownAndHolidaysInDC.get(idx).getEndDate();
+                idx += 1;
+            } else {
+                if (numOfDays < DateUtil.dateIntervalLengthInDaysAbs(curDate, lockdownAndHolidaysInDC.get(idx).getStartDate())) {
+                    curDate = DateUtil.dateAddN(curDate, numOfDays); 
+                    return curDate;
+                } else {
+                    numOfDays -= DateUtil.dateIntervalLengthInDaysAbs(curDate, lockdownAndHolidaysInDC.get(idx).getStartDate());
+                    curDate = lockdownAndHolidaysInDC.get(idx).getEndDate();
+                    idx += 1;
+                }
+            }
+        }
+        return curDate;
     }
 
     /**

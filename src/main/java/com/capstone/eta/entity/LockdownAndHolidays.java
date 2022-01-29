@@ -1,6 +1,6 @@
 package com.capstone.eta.entity;
 
-import java.util.Date;
+import java.sql.Date;
 
 import javax.persistence.*;
 

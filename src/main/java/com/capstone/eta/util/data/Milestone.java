@@ -18,8 +18,8 @@ import lombok.Data;
 @Data
 public class Milestone {
     enum GraphName {
-        EGNetwork,
-        MoR,
+        EngineeringGroupNetwork,
+        Mor,
         PreRack,
     }
     
@@ -39,7 +39,7 @@ public class Milestone {
     private String deliveryNumber;
     private List<Pair<Task, Date>> finishedTasks = new ArrayList<>();
     private Map<String, Integer> slaMap;
-
+    private WeightGenerator weightGenerator = new WeightGenerator();
     private CalendarService calendarService;
 
     private WorkOrderRepository workOrderRepository;
@@ -58,6 +58,7 @@ public class Milestone {
         this.graphName = graphName;
         this.startDate = startDate;     // Note startDate only meaningful when status != NotStarted
         // this.slaMap = JsonUtil.getTasksSLAMapFromGraphAndMilestoneName(graphName, milestoneName);
+        this.weightGenerator = new WeightGenerator();
         this.calendarService = (CalendarService) ApplicationContextProvider.getBean("calendarService");
         this.workOrderRepository = (WorkOrderRepository) ApplicationContextProvider.getBean("workOrderRepository");
         this.deliveryInfoRepository = (DeliveryInfoRepository) ApplicationContextProvider.getBean("deliveryInfoRepository");
@@ -95,28 +96,30 @@ public class Milestone {
         }
 
         // calculate weight
+        // TODO: Logic needs to be rewritten to handle in progress milestone
+        this.milestoneWeight = weightGenerator.getModelWeight(deliveryNumber, milestoneName, graphName, curDate);
         // if not started, use model trained with full dataset
-        if (this.status == Status.NotStarted) {
-            this.milestoneWeight = WeightGenerator.getModelWeight(milestoneName, graphName, curDate);
-        // if already finished, use the actual duration
-        } else if (this.status == Status.Finished) {
-            this.milestoneWeight = WeightGenerator.getHistWeight(milestoneName, graphName, curDate);
-        // if milestone status is InProgress
-        } else {
-            Integer modelEstimatedTime = WeightGenerator.getModelWeight(milestoneName, graphName, curDate);
+        // if (this.status == Status.NotStarted) {
+        //     this.milestoneWeight = WeightGenerator.getModelWeight(milestoneName, graphName, curDate);
+        // // if already finished, use the actual duration
+        // } else if (this.status == Status.Finished) {
+        //     this.milestoneWeight = WeightGenerator.getHistWeight(milestoneName, graphName, curDate);
+        // // if milestone status is InProgress
+        // } else {
+        //     Integer modelEstimatedTime = WeightGenerator.getModelWeight(milestoneName, graphName, curDate);
 
-            float actualCompletionRate = getActualCompletionRate(curDate, modelEstimatedTime);
-            float standardCompletionRate = getStandardCompletionRate();
+        //     float actualCompletionRate = getActualCompletionRate(curDate, modelEstimatedTime);
+        //     float standardCompletionRate = getStandardCompletionRate();
 
-            Integer actualTimeForFinishedTasks = getActualTimeForFinishedTasks();
-            Integer standardTimeForFinishedTasks = getStandardTimeForFinishedTasks();
+        //     Integer actualTimeForFinishedTasks = getActualTimeForFinishedTasks();
+        //     Integer standardTimeForFinishedTasks = getStandardTimeForFinishedTasks();
 
-            if (actualCompletionRate >= standardCompletionRate) {
-                this.milestoneWeight = modelEstimatedTime + (actualTimeForFinishedTasks - standardTimeForFinishedTasks);
-            } else {
-                this.milestoneWeight = modelEstimatedTime - (standardTimeForFinishedTasks - actualTimeForFinishedTasks);
-            }
-        }
+        //     if (actualCompletionRate >= standardCompletionRate) {
+        //         this.milestoneWeight = modelEstimatedTime + (actualTimeForFinishedTasks - standardTimeForFinishedTasks);
+        //     } else {
+        //         this.milestoneWeight = modelEstimatedTime - (standardTimeForFinishedTasks - actualTimeForFinishedTasks);
+        //     }
+        // }
     }
 
     /**

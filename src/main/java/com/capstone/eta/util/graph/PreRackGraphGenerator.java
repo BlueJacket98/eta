@@ -12,8 +12,8 @@ import org.javatuples.*;
 
 public class PreRackGraphGenerator extends GraphGenerator {
     enum GraphName {
-        EGNetwork,
-        MoR,
+        EngineeringGroupNetwork,
+        Mor,
         PreRack,
     }
 

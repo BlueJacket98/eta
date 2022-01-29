@@ -13,4 +13,5 @@ public interface LockdownAndHolidaysRepository extends JpaRepository<LockdownAnd
     List<LockdownAndHolidays> findByEndDate(Date endDate);
     List<LockdownAndHolidays> findByName(String name);
     List<LockdownAndHolidays> findByDcCode(String dcCode);
+    List<LockdownAndHolidays> findByDcCodeAndStartDateAfterOrderByStartDate(String dcCode, Date startDate);
 }
