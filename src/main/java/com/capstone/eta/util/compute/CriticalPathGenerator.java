@@ -1,6 +1,7 @@
 package com.capstone.eta.util.compute;
 import java.util.*;
 
+import com.capstone.eta.entity.WorkOrder;
 import com.capstone.eta.util.data.Milestone;
 
 import org.javatuples.*;
@@ -8,6 +9,7 @@ import org.javatuples.*;
 abstract public class CriticalPathGenerator {
     Map<Pair<Integer, Integer>, Integer> graph;
     int n;
+    List<WorkOrder> startedTasksEntities;
 
     /**
      * Use Floyd-Warshall Algorithm to find the longest weighted path in the graph

@@ -3,11 +3,16 @@ import java.util.Date;
 
 import javax.persistence.*;
 
+import org.hibernate.annotations.GenericGenerator;
+
 @Entity
 @Table(name = "work_order")
 public class WorkOrder {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Id
+    @GenericGenerator(name = "jpa-uuid", strategy = "uuid")
+    @GeneratedValue(generator = "jpa-uuid")
+    @Column(length = 50)
+    private String id;
 
     @Column(name = "delivery_number")
     private String deliveryNumber;
@@ -45,11 +50,11 @@ public class WorkOrder {
     @Column(name = "work_order_modified_date")
     private String workOrderModifiedDate;
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 

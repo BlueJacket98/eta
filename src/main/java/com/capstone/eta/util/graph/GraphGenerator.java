@@ -1,6 +1,7 @@
 package com.capstone.eta.util.graph;
 import java.util.*;
 
+import com.capstone.eta.entity.WorkOrder;
 import com.capstone.eta.util.data.Milestone;
 
 import org.javatuples.Pair;
@@ -11,7 +12,7 @@ abstract class GraphGenerator {
     String deliveryNumber;
     static Map<Pair<Integer, Integer>, Milestone> graph = new HashMap<>();
     static Map<String, List<Pair<Integer, Integer>>> edgeNameToPairs = new HashMap<>();
-
+    List<WorkOrder> startedTasksEntities;
     /**
      * @param Date date, current date in a Date class;
      * @return Map<Pair<Integer, Integer>, Integer> graph, the graph with weight updated
@@ -19,7 +20,9 @@ abstract class GraphGenerator {
     public void updateGraph(Date curDate) {
         for (Map.Entry<Pair<Integer, Integer>, Milestone> entry : graph.entrySet()) {
             Pair<Integer, Integer> pair = entry.getKey();
-            graph.get(pair).updateMilestone(curDate);
+            // long startTime = System.currentTimeMillis();
+            graph.get(pair).updateMilestone(curDate, startedTasksEntities);
+            // System.out.println("Update Time: " + (System.currentTimeMillis() - startTime));
         }
     }
 

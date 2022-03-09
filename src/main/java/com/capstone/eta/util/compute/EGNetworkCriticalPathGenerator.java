@@ -2,6 +2,7 @@ package com.capstone.eta.util.compute;
 import java.util.*;
 import org.javatuples.*;
 
+import com.capstone.eta.entity.WorkOrder;
 import com.capstone.eta.util.data.Milestone;
 import com.capstone.eta.util.graph.EGNetworkGraphGenerator;
 
@@ -10,12 +11,14 @@ public class EGNetworkCriticalPathGenerator extends CriticalPathGenerator {
         EngineeringGroupNetwork,
         Mor,
         PreRack,
+        PreBuiltRow,
     }
 
     EGNetworkGraphGenerator egNetworkGraphGenerator;
 
-    public EGNetworkCriticalPathGenerator(String deliveryNumber) {
-        egNetworkGraphGenerator = new EGNetworkGraphGenerator(deliveryNumber);
+    public EGNetworkCriticalPathGenerator(String deliveryNumber, List<WorkOrder> startedTasksEntities) {
+        egNetworkGraphGenerator = new EGNetworkGraphGenerator(deliveryNumber, startedTasksEntities);
+        this.startedTasksEntities = startedTasksEntities;
     }
     
     

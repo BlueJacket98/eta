@@ -7,23 +7,37 @@ import com.capstone.eta.entity.DeliveryInfo;
 import com.capstone.eta.util.pmml.PMMLModel;
 import com.capstone.eta.util.spring.ApplicationContextProvider;
 public class WeightGenerator {
+    private static WeightGenerator wg = null;
     private DeliveryInfoRepository deliveryInfoRepository;
+    private PMMLModel model;
+    List<String> featureNames;
+    Map<String, Object> paramData;
     
-    public WeightGenerator(){
+    private WeightGenerator(){
         this.deliveryInfoRepository = (DeliveryInfoRepository) ApplicationContextProvider.getBean("deliveryInfoRepository");
+        initModel();
     }
 
-    public Integer getModelWeight(String deliveryNumber, String queryEdgeName, String graphName, Date date) {
+    private void initModel(){
         // model route
-        PMMLModel model = new PMMLModel("src\\main\\java\\com\\capstone\\eta\\model\\MLP_0128.pmml");
-
+        model = new PMMLModel("src\\main\\java\\com\\capstone\\eta\\model\\MLP_0128.pmml");
         // Init paramData
-        List<String> featureNames = model.getFeatureNames();
-        Map<String, Object> paramData = new HashMap<>();
+        featureNames = model.getFeatureNames();
+        paramData = new HashMap<>();
         for (String featureName : featureNames) {
             paramData.put(featureName, 0);
         }
+        
+    }
 
+    public static WeightGenerator getInstance() {
+        if (wg == null) {
+            wg = new WeightGenerator();
+        }
+        return wg;
+    }
+
+    public Integer getModelWeight(String deliveryNumber, String queryEdgeName, String graphName, Date date, Float sla) {
         // Fill paramData
         // TODO: align model feature name MilestoneName_xxx with queryEdgeName in GraphGenerators
         DeliveryInfo delivery = deliveryInfoRepository.findByDeliveryNumber(deliveryNumber).get(0);
@@ -42,8 +56,7 @@ public class WeightGenerator {
         }
         
         // SLA Not one-hot encoded
-        // TODO: need mysql table
-        paramData.put("SLA", 10);
+        paramData.put("SLA", sla);
         
         // Region
         if (paramData.containsKey("Region_" + delivery.getRegion())) {
@@ -89,8 +102,9 @@ public class WeightGenerator {
             System.out.println("Key not exist: " + "DeploymentPath_" + delivery.getDeploymentPath());
         }
         
-
+        // long startTime = System.currentTimeMillis();
         Map<String, Object> resultMap = model.modelPrediction(paramData);
+        // System.out.println("Pred time: " + (System.currentTimeMillis() - startTime));
         Integer result = getIntegerByObject(resultMap.get("Duration"));
         System.out.println("Predicted Duration: " + result);
         return result;   

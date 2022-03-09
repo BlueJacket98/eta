@@ -1,6 +1,7 @@
 package com.capstone.eta.dao;
 import com.capstone.eta.entity.LockdownAndHolidays;
 
+import java.sql.Date;
 import java.util.*;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,5 +14,5 @@ public interface LockdownAndHolidaysRepository extends JpaRepository<LockdownAnd
     List<LockdownAndHolidays> findByEndDate(Date endDate);
     List<LockdownAndHolidays> findByName(String name);
     List<LockdownAndHolidays> findByDcCode(String dcCode);
-    List<LockdownAndHolidays> findByDcCodeAndStartDateAfterOrderByStartDate(String dcCode, Date startDate);
+    List<LockdownAndHolidays> findByDcCodeAndStartDateGreaterThanEqualOrderByStartDate(String dcCode, Date startDate);
 }

@@ -18,7 +18,6 @@ public class PMMLModel {
 
     /**
      * 通过传入 PMML 文件路径来生成机器学习模型
-     *
      * @param pmmlFileName pmml 文件路径
      */
     public PMMLModel(String pmmlFileName) {

@@ -2,7 +2,10 @@ package com.capstone.eta.service;
 import com.capstone.eta.dao.LockdownAndHolidaysRepository;
 import com.capstone.eta.entity.LockdownAndHolidays;
 import com.capstone.eta.util.date.DateUtil;
+import com.capstone.eta.util.spring.ApplicationContextProvider;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +56,7 @@ public class CalendarService {
      */
     public Date addNetDaysToDate(String dcCode, Date startDate, Integer numOfDays) {
         List<LockdownAndHolidays> lockdownAndHolidaysInDC = 
-                lockdownAndHolidayRepository.findByDcCodeAndStartDateAfterOrderByStartDate(dcCode, new java.sql.Date(startDate.getTime()));
+                lockdownAndHolidayRepository.findByDcCodeAndStartDateGreaterThanEqualOrderByStartDate(dcCode, new java.sql.Date(startDate.getTime()));
         Date curDate = startDate;
         int idx = 0;
         System.out.println(dcCode);
@@ -61,27 +64,35 @@ public class CalendarService {
         System.out.println(numOfDays);
         // System.out.println("Lockdown and holiday: " + lockdownAndHolidaysInDC);
         for (int i = 0; i < lockdownAndHolidaysInDC.size(); i++) {
+            System.out.println(lockdownAndHolidaysInDC.get(i).getId());
             System.out.println(lockdownAndHolidaysInDC.get(i).getStartDate());
             System.out.println(lockdownAndHolidaysInDC.get(i).getEndDate());
         }
-        while (numOfDays > 0) {
-            if (idx >= lockdownAndHolidaysInDC.size()) {
-                break;
-            }
+        while (numOfDays > 0 && idx < lockdownAndHolidaysInDC.size()) {
+            // falls within the interval
             if (curDate.compareTo(lockdownAndHolidaysInDC.get(idx).getStartDate()) > 0 
                 && curDate.compareTo(lockdownAndHolidaysInDC.get(idx).getEndDate()) < 0) {
-                curDate = lockdownAndHolidaysInDC.get(idx).getEndDate();
-                idx += 1;
+                numOfDays -= DateUtil.dateIntervalLengthInDaysAbs(curDate, lockdownAndHolidaysInDC.get(idx).getEndDate());
+                curDate = DateUtil.dateAddN(lockdownAndHolidaysInDC.get(idx).getEndDate(), 1);
+            // outside the interval
             } else {
+                // remain numOfDays < interval size
                 if (numOfDays < DateUtil.dateIntervalLengthInDaysAbs(curDate, lockdownAndHolidaysInDC.get(idx).getStartDate())) {
                     curDate = DateUtil.dateAddN(curDate, numOfDays); 
                     return curDate;
+                // remain numOfDays >= interval size
                 } else {
-                    numOfDays -= DateUtil.dateIntervalLengthInDaysAbs(curDate, lockdownAndHolidaysInDC.get(idx).getStartDate());
-                    curDate = lockdownAndHolidaysInDC.get(idx).getEndDate();
-                    idx += 1;
+                    System.out.println("Cur Date: " + curDate.toString());
+                    System.out.println("Target Date: " + lockdownAndHolidaysInDC.get(idx).getStartDate().toString());
+                    System.out.println(DateUtil.dateIntervalLengthInDaysAbs(curDate, lockdownAndHolidaysInDC.get(idx).getStartDate()));
+                    // available date minus, not including holiday start date
+                    numOfDays -= DateUtil.dateIntervalLengthInDaysAbs(curDate, lockdownAndHolidaysInDC.get(idx).getStartDate()) - 1;
+                    curDate = DateUtil.dateAddN(lockdownAndHolidaysInDC.get(idx).getEndDate(), 1);
                 }
             }
+            System.out.println(curDate.toString());
+            System.out.println(numOfDays);
+            idx += 1;
         }
         return curDate;
     }
@@ -97,6 +108,6 @@ public class CalendarService {
 
     public static void main(String[] args) {
         // System.out.println(this.getAllUsers());
-        
+
     }
 }

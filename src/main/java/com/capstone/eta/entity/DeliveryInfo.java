@@ -1,13 +1,16 @@
 package com.capstone.eta.entity;
 import java.util.Date;
-
+import org.hibernate.annotations.GenericGenerator;
 import javax.persistence.*;
 
 @Entity
 @Table(name = "delivery_info")
 public class DeliveryInfo {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Id
+    @GenericGenerator(name = "jpa-uuid", strategy = "uuid")
+    @GeneratedValue(generator = "jpa-uuid")
+    @Column(length = 50)
+    private String id;
 
     @Column(name = "mdmid")
     private String mdmid;
@@ -60,11 +63,11 @@ public class DeliveryInfo {
     @Column(name = "deployment_path")
     private String deploymentPath;
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -203,6 +206,8 @@ public class DeliveryInfo {
     public void setDeploymentPath(String deploymentPath) {
         this.deploymentPath = deploymentPath;
     }
+
+    
 
     
 }

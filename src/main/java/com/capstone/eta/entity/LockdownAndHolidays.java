@@ -4,11 +4,17 @@ import java.sql.Date;
 
 import javax.persistence.*;
 
+import org.hibernate.annotations.GenericGenerator;
+
 @Entity
 @Table(name = "lockdown_and_holidays")
+
 public class LockdownAndHolidays {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Id
+    @GenericGenerator(name = "jpa-uuid", strategy = "uuid")
+    @GeneratedValue(generator = "jpa-uuid")
+    @Column(length = 50)
+    private String id;
 
     @Column(name = "dc_code")
     private String dcCode;
@@ -24,16 +30,14 @@ public class LockdownAndHolidays {
 
     @Column(name = "end_date")
     private Date endDate;
-    
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
-
 
     public String getDcCode() {
         return dcCode;
@@ -74,6 +78,8 @@ public class LockdownAndHolidays {
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
     }
+    
+
 
 
 }

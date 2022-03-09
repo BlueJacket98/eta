@@ -4,8 +4,14 @@ import java.util.*;
 import org.javatuples.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.capstone.eta.dao.AvgDaysFromStartRepository;
 import com.capstone.eta.dao.DeliveryInfoRepository;
+import com.capstone.eta.dao.SLARepository;
 import com.capstone.eta.dao.WorkOrderRepository;
+import com.capstone.eta.entity.AvgDaysFromStart;
+import com.capstone.eta.entity.DeliveryInfo;
+import com.capstone.eta.entity.SLA;
 import com.capstone.eta.entity.WorkOrder;
 import com.capstone.eta.service.CalendarService;
 import com.capstone.eta.util.date.DateUtil;
@@ -31,37 +37,44 @@ public class Milestone {
 
     private String milestoneName;
     private String graphName;
-    private String DCCode;
-    private Date startDate;
     private Task curTask;
     private Status status;
     private Integer milestoneWeight;
     private String deliveryNumber;
-    private List<Pair<Task, Date>> finishedTasks = new ArrayList<>();
-    private Map<String, Integer> slaMap;
-    private WeightGenerator weightGenerator = new WeightGenerator();
-    private CalendarService calendarService;
+    private Float sla;
+    private WeightGenerator weightGenerator;
+    private String deploymentSeverity;
 
-    private WorkOrderRepository workOrderRepository;
-
+    private SLARepository slaRepository;
     private DeliveryInfoRepository deliveryInfoRepository;
+    private AvgDaysFromStartRepository avgDaysFromStartRepository;
     /**
      * Constructor
      * @param milestoneName
      * @param graphName
      * @param startDate
      */
-    public Milestone(String deliveryNumber, String milestoneName, String graphName, Date startDate) {
+    public Milestone(String deliveryNumber, String milestoneName, String graphName) {
+        this.slaRepository = (SLARepository) ApplicationContextProvider.getBean("slaRepository");
+        this.deliveryInfoRepository = (DeliveryInfoRepository) ApplicationContextProvider.getBean("deliveryInfoRepository");
+        this.avgDaysFromStartRepository = (AvgDaysFromStartRepository) ApplicationContextProvider.getBean("avgDaysFromStartRepository");
+
         this.deliveryNumber = deliveryNumber;
         this.status = Status.NotStarted;
         this.milestoneName = milestoneName;
         this.graphName = graphName;
-        this.startDate = startDate;     // Note startDate only meaningful when status != NotStarted
+        // this.startDate = startDate;     // Note startDate only meaningful when status != NotStarted
         // this.slaMap = JsonUtil.getTasksSLAMapFromGraphAndMilestoneName(graphName, milestoneName);
-        this.weightGenerator = new WeightGenerator();
-        this.calendarService = (CalendarService) ApplicationContextProvider.getBean("calendarService");
-        this.workOrderRepository = (WorkOrderRepository) ApplicationContextProvider.getBean("workOrderRepository");
-        this.deliveryInfoRepository = (DeliveryInfoRepository) ApplicationContextProvider.getBean("deliveryInfoRepository");
+        this.weightGenerator = WeightGenerator.getInstance();
+        DeliveryInfo deliveryInfo = deliveryInfoRepository.findByDeliveryNumber(deliveryNumber).get(0);
+        this.deploymentSeverity = deliveryInfo.getDeploymentSeverity();
+        List<SLA> slaList = slaRepository.findByTaskGroupTypeAndMilestoneNameAndRegionAndDcCodeAndDeploymentSeverity(
+            graphName, milestoneName, deliveryInfo.getRegion(), deliveryInfo.getDcCode(), deploymentSeverity);
+        if (slaList.size() == 0) {
+            this.sla = (float)10;
+        } else {
+            this.sla = slaList.get(0).getSla();
+        }
     }
 
     /**
@@ -69,115 +82,52 @@ public class Milestone {
      * @param curDate
      * @return Integer, milestone weight
      */
-    public void updateMilestone(Date curDate) {
-        // update status and finished tasks
-        if (deliveryInfoRepository.findByDeliveryNumberAndFpStartDateLessThanEqual(deliveryNumber, curDate).size() == 0) {
-            status = Status.NotStarted;
-        } else {
-            List<WorkOrder> startedTasksEntities = workOrderRepository.findByDeliveryNumberAndStartDateLessThanEqual(deliveryNumber, curDate);
-            List<Pair<Task, Date>> allFinishedTasks = new ArrayList<>();
+    public void updateMilestone(Date curDate, List<WorkOrder> startedTasksEntities) {
+        // Status prevStatus = status;
 
-            for (WorkOrder workOrder : startedTasksEntities) {
-                if (workOrder.getEndDate().getTime() <= curDate.getTime()) {
-                    allFinishedTasks.add(Pair.with(new Task(workOrder.getWorkOrderName()), curDate));
-                }
-            }
-            
-            finishedTasks = allFinishedTasks;
-            // if the last work order name contains " - Ended"
-            if (startedTasksEntities.size() == 0) {
-                status = Status.NotStarted;
-            }
-            else if (startedTasksEntities.get(startedTasksEntities.size() - 1).getWorkOrderName().contains(" - Ended")) {
-                status = Status.Finished;
-            } else {
-                status = Status.InProgress;
-            }
+        // update status and finished tasks
+        if (status == Status.Finished) {
+            ;
+        } else if (startedTasksEntities.size() == 0) {
+            status = Status.NotStarted;
+        } else if (startedTasksEntities.get(startedTasksEntities.size() - 1).getWorkOrderName().contains(" - Ended")) {
+            status = Status.Finished;
+        } else {
+            status = Status.InProgress;
         }
+        
 
         // calculate weight
-        // TODO: Logic needs to be rewritten to handle in progress milestone
-        this.milestoneWeight = weightGenerator.getModelWeight(deliveryNumber, milestoneName, graphName, curDate);
         // if not started, use model trained with full dataset
-        // if (this.status == Status.NotStarted) {
-        //     this.milestoneWeight = WeightGenerator.getModelWeight(milestoneName, graphName, curDate);
-        // // if already finished, use the actual duration
-        // } else if (this.status == Status.Finished) {
-        //     this.milestoneWeight = WeightGenerator.getHistWeight(milestoneName, graphName, curDate);
-        // // if milestone status is InProgress
-        // } else {
-        //     Integer modelEstimatedTime = WeightGenerator.getModelWeight(milestoneName, graphName, curDate);
+        if (this.status == Status.NotStarted) {
+            // if (prevStatus != this.status) {
+            long startTime1 = System.currentTimeMillis();
+            this.milestoneWeight = weightGenerator.getModelWeight(deliveryNumber, milestoneName, graphName, curDate, sla);
+            System.out.println("Not started get weight time: " + (System.currentTimeMillis() - startTime1));
+            // }
+        // if milestone status is InProgress, add the diff between used and avg
+        } else {
+            long startTime1 = System.currentTimeMillis();
+            this.milestoneWeight = weightGenerator.getModelWeight(deliveryNumber, milestoneName, graphName, curDate, sla);
+            System.out.println("In progress get weight time: " + (System.currentTimeMillis() - startTime1));
 
-        //     float actualCompletionRate = getActualCompletionRate(curDate, modelEstimatedTime);
-        //     float standardCompletionRate = getStandardCompletionRate();
+            WorkOrder firstWorkOrder = startedTasksEntities.get(0);
+            WorkOrder lastWorkOrder = startedTasksEntities.get(startedTasksEntities.size() - 1);
+            Integer usedDays = DateUtil.dateDiffInDaysAbs(curDate, firstWorkOrder.getStartDate());
 
-        //     Integer actualTimeForFinishedTasks = getActualTimeForFinishedTasks();
-        //     Integer standardTimeForFinishedTasks = getStandardTimeForFinishedTasks();
-
-        //     if (actualCompletionRate >= standardCompletionRate) {
-        //         this.milestoneWeight = modelEstimatedTime + (actualTimeForFinishedTasks - standardTimeForFinishedTasks);
-        //     } else {
-        //         this.milestoneWeight = modelEstimatedTime - (standardTimeForFinishedTasks - actualTimeForFinishedTasks);
-        //     }
-        // }
-    }
-
-    /**
-     * Get the SLA for the milestone
-     * @return Integer
-     */
-    private Integer getStandardTimeForMilestone() {
-        return JsonUtil.getMilestoneSLAFromGraphAndMilestoneName(graphName, milestoneName);
-    }
-
-
-    /**
-     * Get the difference between milestone start date and last finished task finish date
-     * @return Integer
-     */
-    private Integer getActualTimeForFinishedTasks() {
-        return DateUtil.dateDiffInDaysAbs(startDate, finishedTasks.get(finishedTasks.size() - 1).getValue1());
-    }
-
-
-    /**
-     * Get the total SLA for finished tasks
-     * @return Integer
-     */
-    private Integer getStandardTimeForFinishedTasks() {
-        Integer totalSLA = (int)0;
-        for (Pair<Task, Date> finishedTask : finishedTasks) {
-            // totalSLA += slaMap.get(finishedTask.getValue0().getTaskName());
-            totalSLA += 1;
+            long startTime2 = System.currentTimeMillis();
+            List<AvgDaysFromStart> histRecords = avgDaysFromStartRepository.findByTaskGroupTypeAndMilestoneNameAndWorkOrderNameAndDeploymentSeverity
+                        (graphName, milestoneName, lastWorkOrder.getWorkOrderName(), deploymentSeverity);
+            System.out.println("Find hist time: " + (System.currentTimeMillis() - startTime2));
+            
+            Integer avgDays = usedDays;
+            if (histRecords.size() != 0) {
+                avgDays = Math.round(histRecords.get(0).getAvgDays());
+            }
+            this.milestoneWeight += (usedDays - avgDays);
         }
-        return totalSLA;
     }
 
-    /**
-     * Get Actual Completion Rate according to:
-     *  The actual completion rate = (time already took - holiday & lockdown days) 
-     *                              / the predicted net time the milestone will take
-     * @param curDate
-     * @param modelEstimatedTime
-     * @return
-     */
-    private float getActualCompletionRate(Date curDate, Integer modelEstimatedTime) {
-        Integer actualTimeTook = DateUtil.dateDiffInDaysAbs(curDate, startDate);
-        Integer lockdownAndHolidaysDays = calendarService.getLockdownAndHolidaysBetween(DCCode, curDate, startDate);
-        return (float)(actualTimeTook - lockdownAndHolidaysDays) / modelEstimatedTime;
-    }
-
-    /**
-     * Get Standard Completion Rate according to:
-     *  The standard completion rate = the sum of net SLA of currently completed tasks 
-     *                                  / the net SLA of the milestone
-     * @return
-     */
-    private float getStandardCompletionRate() {
-        Integer standardTimeForFinishedTasks = getStandardTimeForFinishedTasks();
-        Integer standardTimeForMilestone = getStandardTimeForMilestone();
-        return (float)(standardTimeForFinishedTasks / standardTimeForMilestone);
-    }
 
 
     public String getMilestoneName() {
@@ -196,13 +146,6 @@ public class Milestone {
         this.graphName = graphName;
     }
 
-    public Date getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-    }
 
     public Task getCurTask() {
         return curTask;
