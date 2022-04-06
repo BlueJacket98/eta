@@ -1,7 +1,8 @@
 package com.capstone.eta.util.date;
 
 import java.util.*;
-
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 public class DateUtil {
     static Calendar calendar = new GregorianCalendar();
     
@@ -28,6 +29,32 @@ public class DateUtil {
 		long diff = Math.abs(date2.getTime() - date1.getTime());
 		long numOfDays = diff / (24 * 60 * 60 * 1000);
 		return (int)numOfDays;
+	}
+
+	static public Date getDateFromString(String date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            Date curDate = sdf.parse(date);
+            return curDate;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return new Date();
+    }
+
+	static public List<Date> getAllDatesBetween(Date start, Date end) {
+		List<Date> list = new ArrayList<>();
+		long s = start.getTime();
+		long e = end.getTime();
+		
+		Long oneDay = 1000 * 60 * 60 * 24l;
+
+		while (s <= e) {
+			start = new Date(s);
+			list.add(start);
+			s += oneDay;
+		}
+		return list;
 	}
 
 	/**

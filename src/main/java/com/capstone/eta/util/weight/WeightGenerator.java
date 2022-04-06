@@ -56,7 +56,7 @@ public class WeightGenerator {
         }
         
         // SLA Not one-hot encoded
-        paramData.put("SLA", sla);
+        paramData.put("SLA", 10);
         
         // Region
         if (paramData.containsKey("Region_" + delivery.getRegion())) {

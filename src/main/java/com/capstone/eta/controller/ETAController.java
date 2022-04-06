@@ -1,8 +1,5 @@
 package com.capstone.eta.controller;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,7 +27,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping(path="/eta")
 public class ETAController {
-    Date curDate;
 
     @Autowired
     DeliveryInfoRepository deliveryInfoRepository;
@@ -48,61 +44,9 @@ public class ETAController {
     CalendarService calendarService;
 
     ETAController() {
-        String date = "2021-01-01";
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        try {
-            curDate = sdf.parse(date);
-        } catch (ParseException except) {
-            except.printStackTrace();
-        }
+        ;
     }
 
-    /**
-     * Query current date
-     * @param request
-     * @param response
-     * @return
-     */
-    @RequestMapping(value = "/query/cur-date")
-    @ResponseBody
-    public String getCurDate(HttpServletRequest request, HttpServletResponse response) {
-        return curDate.toString();
-    }
-
-    /**
-     * Set current date
-     * @param request
-     * @param response
-     * @return
-     */
-    @RequestMapping(value = "/set-date/{date}")
-    @ResponseBody
-    public String setCurDate(HttpServletRequest request, HttpServletResponse response,
-                             @PathVariable("date") String date) {
-        JsonObject res = new JsonObject();
-        
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        try {
-            curDate = sdf.parse(date);
-            res.addProperty("cur_date", curDate.toString());
-            return res.toString();
-        } catch (ParseException except) {
-            res.addProperty("cur_date", "Date Parsing Error");
-            return res.toString();
-        }
-        
-    }
-
-    /**
-     * Elapse one day
-     * @param request
-     * @param response
-     */
-    @RequestMapping(value = "/elapse-one-day")
-    @ResponseBody
-    public void elapseOneDay(HttpServletRequest request, HttpServletResponse response) {
-        curDate = DateUtil.dateAddN(curDate, 1);
-    }
 
     /**
      * Query the ETA of deliveryId, from the stand point of curDate
@@ -111,10 +55,12 @@ public class ETAController {
      * @param deliveryId
      * @return
      */
-    @RequestMapping(value = "/get-eta/{deliveryId}")
+    @RequestMapping(value = "/get-eta/{deliveryId}/{curDate}")
     @ResponseBody
     public String getDeliveryETA(HttpServletRequest request, HttpServletResponse response,
-                        @PathVariable("deliveryId") String deliveryId) {
+                        @PathVariable("deliveryId") String deliveryId, @PathVariable("curDate") String curDateStr) {
+        Date curDate = DateUtil.getDateFromString(curDateStr);
+
         List<DeliveryInfo> deliveryInfoList = deliveryInfoRepository.findByDeliveryNumber(deliveryId);
         JsonObject res = new JsonObject();
         if (deliveryInfoList.size() == 0) {
@@ -144,27 +90,33 @@ public class ETAController {
         return res.toString();
     }
 
-    // @ResponseBody
-    // @RequestMapping(value = "/get-eta-by-date", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-    // public String getDeliveryETAByDate(HttpServletRequest request, HttpServletResponse response) {
-    //     JsonObject jsonParam = this.g
-    // }
-
-    // @RequestMapping(value = "/test")
-    // @ResponseBody
-    // public String test(HttpServletRequest request, HttpServletResponse response) {
-    //     DateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd");
-    //     try {
-    //         // result should be July 10, 2019 + 13 holidays = July 23, 2019
-    //         Date myDate1 = dateFormat1.parse("2019-01-01");
-    //         System.out.println(myDate1.toString());
-    //         Date returnedDate = calendarService.addNetDaysToDate("AMS04", myDate1, 190);
-    //         return "" + returnedDate.toString();
-    //     } catch (java.text.ParseException e) {
-    //         e.printStackTrace();
-    //         return "";
-    //     }
+    public JsonObject getDeliveryETATest(String deliveryId, Date curDate) {
+        List<DeliveryInfo> deliveryInfoList = deliveryInfoRepository.findByDeliveryNumber(deliveryId);
+        JsonObject res = new JsonObject();
+        if (deliveryInfoList.size() == 0) {
+            res.addProperty("delivery_id", "Not Found");
+            res.addProperty("net_estimated_duration", "Not Found");
+            res.addProperty("eta_date", "Not Found");
+            return res;
+        }
+        DeliveryInfo deliveryInfo = deliveryInfoList.get(0);
+        String dcCode = deliveryInfo.getDcCode();
         
+        List<WorkOrder> startedTasksEntities = workOrderRepository.findByDeliveryNumberAndStartDateLessThanEqual(deliveryId, curDate);
+        if (startedTasksEntities.size() > 0 && startedTasksEntities.get(startedTasksEntities.size() - 1).getWorkOrderName().contains(" - Ended")) {
+            res.addProperty("delivery_id", deliveryId);
+            res.addProperty("net_estimated_duration", "Already completed");
+            res.addProperty("eta_date", deliveryInfo.getActualDockDate().toString());
+            return res;
+        }
+        estimationService.initEstimationService(deliveryId, startedTasksEntities);
+        Integer netEstimatedDuration = estimationService.getEstimatedDuration(curDate, deliveryId);
+        Date etaDate = calendarService.addNetDaysToDate(dcCode, curDate, netEstimatedDuration);
         
-    
+        res.addProperty("delivery_id", deliveryId);
+        res.addProperty("net_estimated_duration", netEstimatedDuration);
+        res.addProperty("eta_date", etaDate.toString());
+        
+        return res;
+    }
 }
