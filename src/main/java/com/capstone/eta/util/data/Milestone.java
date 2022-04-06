@@ -109,7 +109,7 @@ public class Milestone {
         } else {
             long startTime1 = System.currentTimeMillis();
             this.milestoneWeight = weightGenerator.getModelWeight(deliveryNumber, milestoneName, graphName, curDate, sla);
-            System.out.println("In progress get weight time: " + (System.currentTimeMillis() - startTime1));
+            // System.out.println("In progress get weight time: " + (System.currentTimeMillis() - startTime1));
 
             WorkOrder firstWorkOrder = startedTasksEntities.get(0);
             WorkOrder lastWorkOrder = startedTasksEntities.get(startedTasksEntities.size() - 1);
@@ -118,7 +118,7 @@ public class Milestone {
             long startTime2 = System.currentTimeMillis();
             List<AvgDaysFromStart> histRecords = avgDaysFromStartRepository.findByTaskGroupTypeAndMilestoneNameAndWorkOrderNameAndDeploymentSeverity
                         (graphName, milestoneName, lastWorkOrder.getWorkOrderName(), deploymentSeverity);
-            System.out.println("Find hist time: " + (System.currentTimeMillis() - startTime2));
+            // System.out.println("Find hist time: " + (System.currentTimeMillis() - startTime2));
             
             Integer avgDays = usedDays;
             if (histRecords.size() != 0) {

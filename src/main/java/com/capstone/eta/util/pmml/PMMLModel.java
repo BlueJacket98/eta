@@ -70,6 +70,7 @@ public class PMMLModel {
             FieldValue fieldValue = inputField.prepare(paramValue);   //将参数值填入模型中的参数中
             arguments.put(inputFieldName, fieldValue);          //存放在map列表中
         }
+        // System.out.println("Arguments: " + arguments);
         Map<FieldName, ?> results = modelEvaluator.evaluate(arguments);
         List<TargetField> targetFields = modelEvaluator.getTargetFields();
 
