@@ -30,11 +30,11 @@ abstract public class CriticalPathGenerator {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 if (inputGraph.containsKey(Pair.with((Integer)i, (Integer)j))) {
-                    f[i][j] = -inputGraph.get(Pair.with((Integer)i, (Integer)j)).getMilestoneWeight();
+                    f[i][j] = inputGraph.get(Pair.with((Integer)i, (Integer)j)).getMilestoneWeight();
                 } else if (i == j) {
                     f[i][j] = 0;
                 } else {
-                    f[i][j] = 10000;
+                    f[i][j] = -10000;
                 }
             }
         }
@@ -53,17 +53,20 @@ abstract public class CriticalPathGenerator {
                     // if (graph.get(Pair.with(x, y)) < maxTotalWeight) {
                     //     maxTotalWeight = graph.get(Pair.with(x, y));
                     //     criticalPath = Pair.with(x, y);
-                    f[x][y] = Math.min(f[x][y], f[x][k] + f[k][y]);
-                    // System.out.println("f[x][y]" + f[x][y] + " " + "f[x][k] + f[k][y]" + (f[x][k] + f[k][y]));
-                    if (f[x][y] < maxTotalWeight) {
-                        maxTotalWeight = f[x][y];
-                        criticalPath = Pair.with(x, y);
-                    
+                    if (f[x][k] != -10000 && f[k][y] != 10000) {
+                        f[x][y] = Math.max(f[x][y], f[x][k] + f[k][y]);
+                        // System.out.println("f[x][y]" + f[x][y] + " " + "f[x][k] + f[k][y]" + (f[x][k] + f[k][y]));
+                        if (f[x][y] > maxTotalWeight) {
+                            maxTotalWeight = f[x][y];
+                            criticalPath = Pair.with(x, y);
+                        }
                     }
+                    
+                    
                 }
             }
         }
-        return Pair.with(criticalPath, -maxTotalWeight);
+        return Pair.with(criticalPath, maxTotalWeight);
     }
 
     abstract public Pair<Pair<Integer, Integer>, Integer> compute(Date date);
