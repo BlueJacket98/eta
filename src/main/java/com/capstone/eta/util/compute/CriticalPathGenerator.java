@@ -39,7 +39,7 @@ abstract public class CriticalPathGenerator {
             }
         }
 
-        System.out.println("Graph: " + Arrays.deepToString(f));
+        // System.out.println("Graph: " + Arrays.deepToString(f));
 
         // main body of floyd-warshall algorithm
         Pair<Integer, Integer> criticalPath = Pair.with(0, 0);

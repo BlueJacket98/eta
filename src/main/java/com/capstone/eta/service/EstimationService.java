@@ -54,11 +54,11 @@ public class EstimationService {
         Integer estimatedDuration = Math.max(preBuiltRowRes.getValue1(), 
                                         Math.max(egNetworkRes.getValue1(), 
                                             Math.max(moRRes.getValue1(), preRackRes.getValue1()))); 
-        System.out.println(estimatedDuration);
-        System.out.println("egNetworkRes: " + egNetworkRes);
-        System.out.println("moRRes: " + moRRes);
-        System.out.println("preRackRes: " + preRackRes);
-        System.out.println("preBuiltRowRes: " + preBuiltRowRes);
+        // System.out.println(estimatedDuration);
+        // System.out.println("egNetworkRes: " + egNetworkRes);
+        // System.out.println("moRRes: " + moRRes);
+        // System.out.println("preRackRes: " + preRackRes);
+        // System.out.println("preBuiltRowRes: " + preBuiltRowRes);
         return estimatedDuration;
     }
 

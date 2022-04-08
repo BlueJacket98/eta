@@ -47,82 +47,82 @@ public class WeightGenerator {
         // TaskGroupType
         if (paramData.containsKey("TaskGroupType_" + graphName)) {
             paramData.put("TaskGroupType_" + graphName, 1);
-            System.out.println("TaskGroupType_" + graphName + ": " + "1");
+            // System.out.println("TaskGroupType_" + graphName + ": " + "1");
         } else {
-            System.out.println("Key not exist: " + "TaskGroupType_" + graphName);
+            // System.out.println("Key not exist: " + "TaskGroupType_" + graphName);
         }
         
         // MilestoneName
         if (paramData.containsKey("MilestoneName_" + queryEdgeName)) {
             paramData.put("MilestoneName_" + queryEdgeName, 1);
-            System.out.println("MilestoneName_" + queryEdgeName + ": " + "1");
+            // System.out.println("MilestoneName_" + queryEdgeName + ": " + "1");
         } else {
-            System.out.println("Key not exist: " + "MilestoneName_" + queryEdgeName);
+            // System.out.println("Key not exist: " + "MilestoneName_" + queryEdgeName);
         }
         
         // SLA Not one-hot encoded
         paramData.put("SLA", sla);
-        System.out.println("SLA" + ": " + sla);
+        // System.out.println("SLA" + ": " + sla);
         // Region
         if (paramData.containsKey("Region_" + delivery.getRegion())) {
             paramData.put("Region_" + delivery.getRegion(), 1);
-            System.out.println("Region_" + delivery.getRegion() + ": " + "1");
+            // System.out.println("Region_" + delivery.getRegion() + ": " + "1");
         } else {
-            System.out.println("Key not exist: " + "Region_" + delivery.getRegion());
+            // System.out.println("Key not exist: " + "Region_" + delivery.getRegion());
         }
         
         // DCCODE
         if (paramData.containsKey("DCCODE_" + delivery.getDcCode())) {
             paramData.put("DCCODE_" + delivery.getDcCode(), 1);
-            System.out.println("DCCODE_" + delivery.getDcCode() + ": " + "1");
+            // System.out.println("DCCODE_" + delivery.getDcCode() + ": " + "1");
         } else {
-            System.out.println("Key not exist: " + "DCCODE_" + delivery.getDcCode());
+            // System.out.println("Key not exist: " + "DCCODE_" + delivery.getDcCode());
         }
         
         // ResourceType
         if (paramData.containsKey("ResourceType_" + delivery.getResoureType())) {
             paramData.put("ResourceType_" + delivery.getResoureType(), 1);
-            System.out.println("ResourceType_" + delivery.getResoureType() + ": " + "1");
+            // System.out.println("ResourceType_" + delivery.getResoureType() + ": " + "1");
         } else {
-            System.out.println("Key not exist: " + "ResourceType_" + delivery.getResoureType());
+            // System.out.println("Key not exist: " + "ResourceType_" + delivery.getResoureType());
         }
         
         // Intent
         if (paramData.containsKey("Intent_" + delivery.getIntent())) {
             paramData.put("Intent_" + delivery.getIntent(), 1);
-            System.out.println("Intent_" + delivery.getIntent() + ": " + "1");
+            // System.out.println("Intent_" + delivery.getIntent() + ": " + "1");
         } else {
-            System.out.println("Key not exist: " + "Intent_" + delivery.getIntent());
+            // System.out.println("Key not exist: " + "Intent_" + delivery.getIntent());
         }
         
         // IsMainstream
         if (paramData.containsKey("IsMainstream_" + delivery.getIsMainstream())) {
             paramData.put("IsMainstream_" + delivery.getIsMainstream(), 1);
-            System.out.println("IsMainstream_" + delivery.getIsMainstream() + ": " + "1");
+            // System.out.println("IsMainstream_" + delivery.getIsMainstream() + ": " + "1");
         } else {
-            System.out.println("Key not exist: " + "IsMainstream_" + delivery.getIsMainstream());
+            // System.out.println("Key not exist: " + "IsMainstream_" + delivery.getIsMainstream());
         }
         
         // DeploymentSeverity Not one-hot encoded
         paramData.put("DeploymentSeverity", Integer.parseInt(delivery.getDeploymentSeverity()));
-        System.out.println("DeploymentSeverity" + ": " + Integer.parseInt(delivery.getDeploymentSeverity()));
+        // System.out.println("DeploymentSeverity" + ": " + Integer.parseInt(delivery.getDeploymentSeverity()));
         // DeploymentPath
         if (paramData.containsKey("DeploymentPath_" + delivery.getDeploymentPath())) {
             paramData.put("DeploymentPath_" + delivery.getDeploymentPath(), 1);
-            System.out.println("DeploymentPath_" + delivery.getDeploymentPath() + ": " + "1");
+            // System.out.println("DeploymentPath_" + delivery.getDeploymentPath() + ": " + "1");
         } else {
-            System.out.println("Key not exist: " + "DeploymentPath_" + delivery.getDeploymentPath());
+            // System.out.println("Key not exist: " + "DeploymentPath_" + delivery.getDeploymentPath());
         }
-        System.out.println("ParamData: " + paramData);
+        // System.out.println("ParamData: " + paramData);
         // long startTime = System.currentTimeMillis();
         Map<String, Object> resultMap = model.modelPrediction(paramData);
         // System.out.println("Pred time: " + (System.currentTimeMillis() - startTime));
-        System.out.println(resultMap);
+        // System.out.println(resultMap);
         if (resultMap.get("Duration") == null) {
             return -1;
         }
         Integer result = getIntegerByObject(resultMap.get("Duration"));
-        System.out.println("Predicted Duration: " + result);
+        // System.out.println("Predicted Duration: " + result);
         return result;   
     }
 

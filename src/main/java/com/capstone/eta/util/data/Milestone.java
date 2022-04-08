@@ -83,14 +83,20 @@ public class Milestone {
      * @return Integer, milestone weight
      */
     public void updateMilestone(Date curDate, List<WorkOrder> startedTasksEntities) {
+        List<WorkOrder> startedTasksEntitiesInMilestone = new ArrayList<>();
+        for (WorkOrder startedTaskEntity: startedTasksEntities) {
+            if (startedTaskEntity.getMilestoneName() == milestoneName) {
+                startedTasksEntitiesInMilestone.add(startedTaskEntity);
+            }
+        }
         // Status prevStatus = status;
 
         // update status and finished tasks
         if (status == Status.Finished) {
             ;
-        } else if (startedTasksEntities.size() == 0) {
+        } else if (startedTasksEntitiesInMilestone.size() == 0) {
             status = Status.NotStarted;
-        } else if (startedTasksEntities.get(startedTasksEntities.size() - 1).getWorkOrderName().contains(" - Ended")) {
+        } else if (startedTasksEntitiesInMilestone.get(startedTasksEntitiesInMilestone.size() - 1).getWorkOrderName().contains(" - Ended")) {
             status = Status.Finished;
         } else {
             status = Status.InProgress;
@@ -103,16 +109,20 @@ public class Milestone {
             // if (prevStatus != this.status) {
             long startTime1 = System.currentTimeMillis();
             this.milestoneWeight = weightGenerator.getModelWeight(deliveryNumber, milestoneName, graphName, curDate, sla);
-            System.out.println("Not started get weight time: " + (System.currentTimeMillis() - startTime1));
+            // System.out.println("Not started get weight time: " + (System.currentTimeMillis() - startTime1));
             // }
+        } else if (this.status == Status.Finished) {
+            this.milestoneWeight = DateUtil.dateDiffInDaysAbs(
+                startedTasksEntitiesInMilestone.get(startedTasksEntitiesInMilestone.size() - 1).getEndDate(), 
+                startedTasksEntitiesInMilestone.get(0).getStartDate());
         // if milestone status is InProgress, add the diff between used and avg
         } else {
             long startTime1 = System.currentTimeMillis();
             this.milestoneWeight = weightGenerator.getModelWeight(deliveryNumber, milestoneName, graphName, curDate, sla);
             // System.out.println("In progress get weight time: " + (System.currentTimeMillis() - startTime1));
 
-            WorkOrder firstWorkOrder = startedTasksEntities.get(0);
-            WorkOrder lastWorkOrder = startedTasksEntities.get(startedTasksEntities.size() - 1);
+            WorkOrder firstWorkOrder = startedTasksEntitiesInMilestone.get(0);
+            WorkOrder lastWorkOrder = startedTasksEntitiesInMilestone.get(startedTasksEntitiesInMilestone.size() - 1);
             Integer usedDays = DateUtil.dateDiffInDaysAbs(curDate, firstWorkOrder.getStartDate());
 
             long startTime2 = System.currentTimeMillis();

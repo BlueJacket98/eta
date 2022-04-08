@@ -13,4 +13,5 @@ import org.springframework.stereotype.Repository;
 public interface DeliveryInfoRepository extends JpaRepository<DeliveryInfo, Integer> {
     List<DeliveryInfo> findByDeliveryNumber(String deliveryNumber);
     List<DeliveryInfo> findByDeliveryNumberAndFpStartDateLessThanEqual(String deliveryNumber, Date fpStartDate);
+    List<DeliveryInfo> findByFpStartDateBetween(Date fpStartDateLower, Date fpStartDateUpper);
 }

@@ -30,14 +30,14 @@ public class PMMLModel {
                 try {
                     is.close();
                 } catch (IOException e) {
-                    System.out.println("InputStream close error!");
+                    // System.out.println("InputStream close error!");
                 }
 
                 ModelEvaluatorFactory modelEvaluatorFactory = ModelEvaluatorFactory.newInstance();
 
                 modelEvaluator = (Evaluator) modelEvaluatorFactory.newModelEvaluator(pmml);
                 modelEvaluator.verify();
-                System.out.println("Model Loaded!");
+                // System.out.println("Model Loaded!");
             }
         } catch (SAXException e) {
             e.printStackTrace();
@@ -51,18 +51,18 @@ public class PMMLModel {
 
     public Map<String, Object> modelPrediction(Map<String, Object> paramData) {
         if (modelEvaluator == null || paramData == null) {
-            System.out.println("Evaluator or input null!");
+            // System.out.println("Evaluator or input null!");
             return null;
         }
 
         List<InputField> inputFields = modelEvaluator.getInputFields();   //获取模型的输入域
         Map<FieldName, FieldValue> arguments = new LinkedHashMap<>();
 
-        if (inputFields.size() != paramData.size()) {
-            System.out.println("inputFields.size(): " + inputFields.size());
-            System.out.println("paramData.size(): " + paramData.size());
-            System.out.println("Input data dimension not aligned!");
-        }
+        // if (inputFields.size() != paramData.size()) {
+        //     System.out.println("inputFields.size(): " + inputFields.size());
+        //     System.out.println("paramData.size(): " + paramData.size());
+        //     System.out.println("Input data dimension not aligned!");
+        // }
 
         for (InputField inputField : inputFields) {            //将参数通过模型对应的名称进行添加
             FieldName inputFieldName = inputField.getName();   //获取模型中的参数名
@@ -135,9 +135,9 @@ public class PMMLModel {
         PMMLModel model = new PMMLModel("src\\main\\java\\com\\capstone\\eta\\model\\MLP_0128.pmml");
 
         List<String> featureNames = model.getFeatureNames();
-        System.out.println("feature: " + featureNames);
-        System.out.println("feature number: " + featureNames.size());
-        System.out.println(model.getTargetName());
+        // System.out.println("feature: " + featureNames);
+        // System.out.println("feature number: " + featureNames.size());
+        // System.out.println(model.getTargetName());
         // // 构建待预测数据
         // Map<FieldName, Number> waitPreSample = new HashMap<>(); // #这里的key一定要对应python中的列名
         // waitPreSample.put(new FieldName("sepal length (cm)"), 10);

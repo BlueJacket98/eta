@@ -144,26 +144,24 @@ public class ETAController {
         return res.toString();
     }
 
-    // @ResponseBody
-    // @RequestMapping(value = "/get-eta-by-date", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-    // public String getDeliveryETAByDate(HttpServletRequest request, HttpServletResponse response) {
-    //     JsonObject jsonParam = this.g
-    // }
-
-    // @RequestMapping(value = "/test")
-    // @ResponseBody
-    // public String test(HttpServletRequest request, HttpServletResponse response) {
-    //     DateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd");
-    //     try {
-    //         // result should be July 10, 2019 + 13 holidays = July 23, 2019
-    //         Date myDate1 = dateFormat1.parse("2019-01-01");
-    //         System.out.println(myDate1.toString());
-    //         Date returnedDate = calendarService.addNetDaysToDate("AMS04", myDate1, 190);
-    //         return "" + returnedDate.toString();
-    //     } catch (java.text.ParseException e) {
-    //         e.printStackTrace();
-    //         return "";
-    //     }
+    public Date getDeliveryETATest(String deliveryId, Date curDate) {
+        List<DeliveryInfo> deliveryInfoList = deliveryInfoRepository.findByDeliveryNumber(deliveryId);
+        if (deliveryInfoList.size() == 0) {
+            return new Date();
+        }
+        DeliveryInfo deliveryInfo = deliveryInfoList.get(0);
+        String dcCode = deliveryInfo.getDcCode();
+        Date deliveryStartDate = deliveryInfo.getFpStartDate();
+        List<WorkOrder> startedTasksEntities = workOrderRepository.findByDeliveryNumberAndStartDateLessThanEqual(deliveryId, curDate);
+        // if (startedTasksEntities.size() > 0 && startedTasksEntities.get(startedTasksEntities.size() - 1).getWorkOrderName().contains(" - Ended")) {
+        //     return deliveryInfo.getActualCtdDate();
+        // }
+        estimationService.initEstimationService(deliveryId, startedTasksEntities);
+        Integer netEstimatedDuration = estimationService.getEstimatedDuration(curDate, deliveryId);
+        Date etaDate = calendarService.addNetDaysToDate(dcCode, deliveryStartDate, netEstimatedDuration);
+    
+        return etaDate;
+    }
         
         
     

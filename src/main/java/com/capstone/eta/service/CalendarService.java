@@ -59,15 +59,15 @@ public class CalendarService {
                 lockdownAndHolidayRepository.findByDcCodeAndStartDateGreaterThanEqualOrderByStartDate(dcCode, new java.sql.Date(startDate.getTime()));
         Date curDate = startDate;
         int idx = 0;
-        System.out.println(dcCode);
-        System.out.println(startDate);
-        System.out.println(numOfDays);
+        // System.out.println(dcCode);
+        // System.out.println(startDate);
+        // System.out.println(numOfDays);
         // System.out.println("Lockdown and holiday: " + lockdownAndHolidaysInDC);
-        for (int i = 0; i < lockdownAndHolidaysInDC.size(); i++) {
-            System.out.println(lockdownAndHolidaysInDC.get(i).getId());
-            System.out.println(lockdownAndHolidaysInDC.get(i).getStartDate());
-            System.out.println(lockdownAndHolidaysInDC.get(i).getEndDate());
-        }
+        // for (int i = 0; i < lockdownAndHolidaysInDC.size(); i++) {
+        //     System.out.println(lockdownAndHolidaysInDC.get(i).getId());
+        //     System.out.println(lockdownAndHolidaysInDC.get(i).getStartDate());
+        //     System.out.println(lockdownAndHolidaysInDC.get(i).getEndDate());
+        // }
         while (numOfDays > 0 && idx < lockdownAndHolidaysInDC.size()) {
             // falls within the interval
             if (curDate.compareTo(lockdownAndHolidaysInDC.get(idx).getStartDate()) > 0 
@@ -82,16 +82,16 @@ public class CalendarService {
                     return curDate;
                 // remain numOfDays >= interval size
                 } else {
-                    System.out.println("Cur Date: " + curDate.toString());
-                    System.out.println("Target Date: " + lockdownAndHolidaysInDC.get(idx).getStartDate().toString());
-                    System.out.println(DateUtil.dateIntervalLengthInDaysAbs(curDate, lockdownAndHolidaysInDC.get(idx).getStartDate()));
+                    // System.out.println("Cur Date: " + curDate.toString());
+                    // System.out.println("Target Date: " + lockdownAndHolidaysInDC.get(idx).getStartDate().toString());
+                    // System.out.println(DateUtil.dateIntervalLengthInDaysAbs(curDate, lockdownAndHolidaysInDC.get(idx).getStartDate()));
                     // available date minus, not including holiday start date
                     numOfDays -= DateUtil.dateIntervalLengthInDaysAbs(curDate, lockdownAndHolidaysInDC.get(idx).getStartDate()) - 1;
                     curDate = DateUtil.dateAddN(lockdownAndHolidaysInDC.get(idx).getEndDate(), 1);
                 }
             }
-            System.out.println(curDate.toString());
-            System.out.println(numOfDays);
+            // System.out.println(curDate.toString());
+            // System.out.println(numOfDays);
             idx += 1;
         }
         return curDate;
