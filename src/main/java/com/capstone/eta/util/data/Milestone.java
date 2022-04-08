@@ -80,7 +80,7 @@ public class Milestone {
     /**
      * Update the status, finishedTasks and milestoneWeight of the milestone
      * @param curDate
-     * @return Integer, milestone weight
+     * @return void
      */
     public void updateMilestone(Date curDate, List<WorkOrder> startedTasksEntities) {
         List<WorkOrder> startedTasksEntitiesInMilestone = new ArrayList<>();

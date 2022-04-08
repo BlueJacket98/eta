@@ -26,6 +26,7 @@ public class EGNetworkCriticalPathGenerator extends CriticalPathGenerator {
         egNetworkGraphGenerator.updateGraph(date);
         Map<Pair<Integer, Integer>, Milestone> graph = egNetworkGraphGenerator.getGraph();
         int n = egNetworkGraphGenerator.getN();
+        System.out.println("EngineeringGroupNetwork");
         return floydWarshall(graph, n);
     }
 

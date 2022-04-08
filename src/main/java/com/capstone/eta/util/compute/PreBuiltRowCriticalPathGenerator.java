@@ -24,6 +24,7 @@ public class PreBuiltRowCriticalPathGenerator extends CriticalPathGenerator {
         preBuiltRowGraphGenerator.updateGraph(date);
         Map<Pair<Integer, Integer>, Milestone> graph = preBuiltRowGraphGenerator.getGraph();
         int n = preBuiltRowGraphGenerator.getN();
+        System.out.println("PreBuiltRow");
         return floydWarshall(graph, n);
     }
 

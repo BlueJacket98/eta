@@ -19,7 +19,7 @@ abstract public class CriticalPathGenerator {
      */
     public Pair<Pair<Integer, Integer>, Integer> floydWarshall(Map<Pair<Integer, Integer>, Milestone> inputGraph, int n) {
         int maxTotalWeight = 0;
-        
+            
         // preprocessing of the graph, make value into integer -> weight
         Integer[][] f = new Integer [n][n];
         // Map<Pair<Integer, Integer>, Integer> graph = new HashMap<>();
@@ -39,7 +39,7 @@ abstract public class CriticalPathGenerator {
             }
         }
 
-        // System.out.println("Graph: " + Arrays.deepToString(f));
+        System.out.println("Graph: " + Arrays.deepToString(f));
 
         // main body of floyd-warshall algorithm
         Pair<Integer, Integer> criticalPath = Pair.with(0, 0);
@@ -66,6 +66,8 @@ abstract public class CriticalPathGenerator {
                 }
             }
         }
+        System.out.println("Critical Path: " + criticalPath);
+        System.out.println("Max Total Weight: " + maxTotalWeight);
         return Pair.with(criticalPath, maxTotalWeight);
     }
 

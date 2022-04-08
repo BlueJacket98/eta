@@ -144,7 +144,7 @@ public class ETAController {
         return res.toString();
     }
 
-    public Date getDeliveryETATest(String deliveryId, Date curDate) {
+    public Date getDeliveryETATest(String deliveryId, Date curDate, List<WorkOrder> startedTasksEntities) {
         List<DeliveryInfo> deliveryInfoList = deliveryInfoRepository.findByDeliveryNumber(deliveryId);
         if (deliveryInfoList.size() == 0) {
             return new Date();
@@ -152,7 +152,7 @@ public class ETAController {
         DeliveryInfo deliveryInfo = deliveryInfoList.get(0);
         String dcCode = deliveryInfo.getDcCode();
         Date deliveryStartDate = deliveryInfo.getFpStartDate();
-        List<WorkOrder> startedTasksEntities = workOrderRepository.findByDeliveryNumberAndStartDateLessThanEqual(deliveryId, curDate);
+        // List<WorkOrder> startedTasksEntities = workOrderRepository.findByDeliveryNumberAndStartDateLessThanEqual(deliveryId, curDate);
         // if (startedTasksEntities.size() > 0 && startedTasksEntities.get(startedTasksEntities.size() - 1).getWorkOrderName().contains(" - Ended")) {
         //     return deliveryInfo.getActualCtdDate();
         // }

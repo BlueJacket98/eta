@@ -24,6 +24,7 @@ public class MoRCriticalPathGenerator extends CriticalPathGenerator {
         moRGraphGenerator.updateGraph(date);
         Map<Pair<Integer, Integer>, Milestone> graph = moRGraphGenerator.getGraph();
         int n = moRGraphGenerator.getN();
+        System.out.println("Mor");
         return floydWarshall(graph, n);
     }
 

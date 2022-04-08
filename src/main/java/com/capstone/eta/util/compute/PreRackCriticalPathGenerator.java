@@ -24,6 +24,7 @@ public class PreRackCriticalPathGenerator extends CriticalPathGenerator {
         preRackGraphGenerator.updateGraph(date);
         Map<Pair<Integer, Integer>, Milestone> graph = preRackGraphGenerator.getGraph();
         int n = preRackGraphGenerator.getN();
+        System.out.println("PreRack");
         return floydWarshall(graph, n);
     }
 

@@ -72,6 +72,7 @@ public class EvaluationController {
         // System.out.println();
         // System.out.println("-------------------------------------------------------------------------------------------------------------------------------------------------------------");
         // for (Date curDate : allDates) {
+
         //     Date estimatedCtdDate = etaController.getDeliveryETATest(deliveryId, curDate);
         //     int diff = DateUtil.dateDiffInDaysAbs(estimatedCtdDate, actualCtdDate).intValue();
         //     int total = DateUtil.dateDiffInDaysAbs(actualCtdDate, fpStartDate);
@@ -87,28 +88,49 @@ public class EvaluationController {
         // }
         for (DeliveryInfo delivery : deliveries) {
             String deliveryId = delivery.getDeliveryNumber();
-            Date fpStartDate = delivery.getFpStartDate();
-            Date actualCtdDate = delivery.getActualCtdDate();
-            List<Date> allDates = DateUtil.getAllDatesBetween(fpStartDate, actualCtdDate);
+            List<WorkOrder> allTasksEntities = workOrderRepository.findByDeliveryNumber(deliveryId);
+            Date startDate = new Date(Long.MAX_VALUE);
+            Date endDate = new Date(Long.MIN_VALUE);
+            
+            for (WorkOrder taskEntity : allTasksEntities) {
+                Date start = taskEntity.getStartDate();
+                Date end = taskEntity.getEndDate();
+                if (start.compareTo(startDate) < 0) {
+                    startDate = start;
+                }
+                if (end.compareTo(endDate) > 0) {
+                    endDate = end;
+                }
+            }
+
+
+            List<Date> allDates = DateUtil.getAllDatesBetween(startDate, endDate);
             System.out.println("-------------------------------------------------------------------------------------------------------------------------------------------------------------");
             System.out.printf("%15s %35s %35s %35s %15s %15s", "Deliv. Id", "Cur Date", "Est. CTD", "Act. CTD", "Diff", "Acc.");
             System.out.println();
             System.out.println("-------------------------------------------------------------------------------------------------------------------------------------------------------------");
             for (Date curDate : allDates) {
-                Date estimatedCtdDate = etaController.getDeliveryETATest(deliveryId, curDate);
-                int diff = DateUtil.dateDiffInDaysAbs(estimatedCtdDate, actualCtdDate).intValue();
-                int total = DateUtil.dateDiffInDaysAbs(actualCtdDate, fpStartDate);
+                List<WorkOrder> startedTasksEntities;
+                for (WorkOrder taskEntity : allTasksEntities) {
+                    Date start = taskEntity.getStartDate();
+                    Date end = taskEntity.getEndDate();
+                    if (start.compareTo(curDate) < 0) {
+                        startedTasksEntities.add(taskEntity);
+                    }
+                }                
+                Date estimatedCtdDate = etaController.getDeliveryETATest(deliveryId, curDate, startedTasksEntities);
+                int diff = DateUtil.dateDiffInDaysAbs(estimatedCtdDate, endDate).intValue();
+                int total = DateUtil.dateDiffInDaysAbs(endDate, startDate);
                 float acc = (total - diff) / total;
                 System.out.format("%15s %35s %35s %35s %15d %15.3f", 
                                     deliveryId, 
                                     curDate.toString(), 
                                     estimatedCtdDate.toString(), 
-                                    actualCtdDate.toString(),
+                                    endDate.toString(),
                                     diff,
                                     acc);
                 System.out.println();
             }
-            
         }
 
     }

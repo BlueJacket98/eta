@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 @Repository("workOrderRepository")
 public interface WorkOrderRepository extends JpaRepository<WorkOrder, Integer> {
     List<WorkOrder> findByDeliveryNumberAndStartDateLessThanEqual(String deliveryNumber, Date curDate);
+    List<WorkOrder> findByDeliveryNumber(String deliveryNumber);
 }
